@@ -22,11 +22,11 @@ const removeItem = (todo: object) => {
 </script>
 
 <template>
-	<form @submit.prevent="addItem">
-		<input type="text" v-model='inputText' />
+	<form @submit.prevent="addItem" class="object-center">
+		<input type="text" v-model='inputText' class="border-2"/>
 		<button type="submit">Add Todo</button>
 	</form>
-	<ul>
+	<ul class="flex flex-col justify-center items-center">
 		<li v-for="todo in todos" :key="todo.id" class="flex" >
 			<p>{{todo.text}}</p>
 			<button @click="removeItem(todo)" class="w-40">X</button>
