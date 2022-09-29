@@ -1,28 +1,100 @@
 <script setup lang="ts">
-import { ref, transformVNodeArgs } from 'vue'
+import { ref, onMounted } from 'vue'
+
 
 let id = 1
 const inputText = ref('')
-const inputTime = ref()
-const inputDuration = ref(0)
+const inputTime = ref('')
+const inputDuration = ref()
 
 // Store All Todos
 const todos = ref<{
 	id: number,
 	text: string,
-	time: Date,
-	duration: number
+	time: string,
+	duration: number,
 	check: boolean
 }[]>([])
 
 // Function to add Todo in Todo List
 const addItem = () => {
-	const obj = { id: id++, text: inputText.value, time: inputTime.value as Date, duration: inputDuration.value as number, check: false }
-	todos.value.push(obj);
-	inputText.value = ''
-	inputTime.value = null
-	inputDuration.value = 0
-	todos.value.sort((a, b) => a.time > b.time ? 1 : -1)
+	const dt = new Date(inputTime.value)
+	// Form Validation
+	if (inputText.value === '') {
+		alert('Add some todo')
+		return
+	}
+	if (dt.getTime() < new Date().getTime()) {
+		alert('This time has passed')
+		return
+	}
+	if (inputDuration.value < 1) {
+		alert('Duration Not Proper')
+		return
+	}
+	// If no ELEMENTS in Todo
+	if (todos.value.length == 0) {
+		todos.value.push({ id: id++, text: inputText.value, time: inputTime.value, duration: inputDuration.value as number, check: false })
+		return
+	}
+	// If Start is after Last Todo
+	if (dt.getTime() >= new Date(todos.value[todos.value.length - 1].time).getTime() + todos.value[todos.value.length - 1].duration * 60000) {
+		todos.value.push({ id: id++, text: inputText.value, time: inputTime.value, duration: inputDuration.value as number, check: false })
+		// inputText.value = ''
+		// inputTime.value = ''
+		// inputDuration.value = 0
+		return
+	}
+	// If End is before first Todo
+	if (dt.getTime() + inputDuration.value * 60000 <= new Date(todos.value[0].time).getTime()) {
+		todos.value.unshift({ id: id++, text: inputText.value, time: inputTime.value, duration: inputDuration.value as number, check: false })
+		return
+	}
+
+	// Handling Time Conflict
+	let st = 0, end = todos.value.length - 1
+	for (let i = 0; i < todos.value.length; i++) {
+		const currDt = new Date(todos.value[i].time)
+		// start Time after current Todo
+		if (dt.getTime() >= currDt.getTime()) {
+			st = i
+		}
+		// start time after end current todo
+		if ((dt.getTime() >= currDt.getTime() + todos.value[i].duration * 60000)) {
+			st = i + 1
+		}
+		// End Time after start of Current Todo
+		if (dt.getTime() + inputDuration.value * 60000 > currDt.getTime()) {
+			end = i
+		}
+	}
+	// Asking for Confirmation To remove Todo
+	console.log(st, end)
+	if ((confirm('There are already some Todo Do you want to remove them'))) {
+		if (st == end) {
+			todos.value[st] = { id: id++, text: inputText.value, time: inputTime.value, duration: inputDuration.value as number, check: false }
+			return
+		}
+		if (end == todos.value.length - 1) {
+			for (let i = st; i < end; i++) {
+				todos.value.pop()
+			}
+			todos.value[st] = { id: id++, text: inputText.value, time: inputTime.value, duration: inputDuration.value as number, check: false }
+			return
+		}
+		let i = 0
+		for (i = st + 1; i < todos.value.length - end; i++) {
+			todos.value[i] = todos.value[i + end - st]
+		}
+		console.log(i)
+		for (let j = todos.value.length; j > i; j--) {
+			todos.value.pop()
+		}
+		todos.value[st] = { id: id++, text: inputText.value, time: inputTime.value, duration: inputDuration.value as number, check: false }
+	}
+	else {
+		alert('No Todo Deleted Give Todo Not Added')
+	}
 }
 
 // Remove Todo button
@@ -38,7 +110,7 @@ const renameItem = (event: MouseEvent, todo: { id: number, text: string }) => {
 	if (btn?.innerText == '<>') {
 		btn.innerText = '+'
 		inp?.removeAttribute('readonly')
-		inp?.focus();
+		inp?.focus()
 		inp?.classList.remove('border-transparent')
 	}
 	else if (btn?.innerText == '+') {
@@ -53,7 +125,7 @@ const removeChecked = () => {
 	todos.value = todos.value.filter(elem => elem.check == false)
 }
 
-console.log(new Date().getTime() / (1000 * 60))
+// console.log(new Date().getTime() / (1000 * 60))
 
 </script>
 
@@ -66,7 +138,7 @@ console.log(new Date().getTime() / (1000 * 60))
 			class="bg-slate-500 rounded-full w-28 h-8 text-slate-50 hover:text-slate-500 hover:bg-slate-200 duration-200 border-2 border-slate-500">
 			Add Todo
 		</button>
-		<input v-model='inputTime' type="datetime-local" class="border-2 rounded-lg col-start-4 col-end-5" />
+		<input v-model="inputTime" required type="datetime-local" class="border-2 rounded-lg col-start-4 col-end-5" />
 		<input v-model='inputDuration' type="number" class="border-2 rounded-lg col-start-4 col-end-5" />
 	</form>
 
