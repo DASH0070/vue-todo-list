@@ -68,10 +68,21 @@ const addItem = () => {
 			end = i
 		}
 	}
+	if (end < st)
+		end = st
+	if (st == end && new Date(todos.value[st].time).getTime() >= dt.getTime() + inputDuration.value * 60000) {
+		for (let i = todos.value.length; i > st; i--) {
+			todos.value[i] = todos.value[i - 1]
+			todos.value[st] = { id: id++, text: inputText.value, time: inputTime.value, duration: inputDuration.value as number, check: false }
+			return
+		}
+		todos.value[st] = { id: id++, text: inputText.value, time: inputTime.value, duration: inputDuration.value as number, check: false }
+		return
+	}
 	// Asking for Confirmation To remove Todo
 	console.log(st, end)
 	if ((confirm('There are already some Todo Do you want to remove them'))) {
-		if (st == end) {
+		if (st == end && new Date(todos.value[st].time).getTime() < dt.getTime() + inputDuration.value * 60000) {
 			todos.value[st] = { id: id++, text: inputText.value, time: inputTime.value, duration: inputDuration.value as number, check: false }
 			return
 		}
