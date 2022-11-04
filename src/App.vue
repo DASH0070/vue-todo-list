@@ -161,7 +161,7 @@ const removeChecked = () => {
 			<input :value="todo.time" readonly class="outline-none border-transparent border-2 rounded-lg">
 			<input :value="todo.duration" readonly class="outline-none border-transparent border-2 rounded-lg">
 			<button @click="removeItem(todo)" class="mx-6 text-red-700">X</button>
-			<button class="text-green-600" @click="(event) => renameItem(event, todo)">{{'<>'}}</button>
+			<button class="text-green-600" @click="(event) => renameItem(event, todo)">{{         '<>'         }}</button>
 		</li>
 	</ul>
 
@@ -170,7 +170,7 @@ const removeChecked = () => {
 		class="bg-red-700 mx-2 my-10 text-slate-50 w-40 h-8 rounded-full hover:text-red-700 border-2 border-red-700 hover:bg-slate-200 duration-200">
 		Remove Checked
 	</button>
-	<button @click="() => {todos = []}"
+	<button @click="() => {         todos = []         }"
 		class="bg-red-700 text-slate-50 w-32 h-8 rounded-full hover:text-red-700 border-2 border-red-700 hover:bg-slate-200 duration-200">
 		Remove All
 	</button>
